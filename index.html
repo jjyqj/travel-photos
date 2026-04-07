@@ -3,143 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>云南之旅 · 2026</title>
+    <title>北京旅游 2026</title>
     <style>
-        /* --- 基础样式 --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f9f9f9; color: #333; line-height: 1.6; padding-bottom: 50px; }
-
-        /* --- 头部 --- */
-        header { 
-            background-color: #fff; 
-            padding: 30px 20px; 
-            text-align: center; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            margin-bottom: 20px; 
-        }
-        header h1 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 5px; }
-        header p { color: #7f8c8d; font-size: 0.95rem; }
-
-        /* --- 容器 --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 10px;
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* --- 栏目样式 --- */
-        .section-title {
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        /* 头部样式 */
+        header {
+            background: linear-gradient(135deg, #4a90e2, #50c878);
+            color: white;
             text-align: center;
-            font-size: 1.4rem;
-            color: #34495e;
-            margin: 40px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            padding: 2rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* 主内容区 */
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* 瀑布流容器 */
+        .masonry-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            padding-bottom: 2rem;
+        }
+
+        /* 图片项 */
+        .image-item {
             position: relative;
-        }
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 2px;
-            background-color: #3498db;
-        }
-
-        /* --- 瀑布流布局 --- */
-        .gallery {
-            column-count: 2;
-            column-gap: 10px;
-        }
-        @media (min-width: 768px) { .gallery { column-count: 3; } }
-        @media (min-width: 1024px) { .gallery { column-count: 4; } }
-
-        .photo-card {
-            break-inside: avoid;
-            margin-bottom: 10px;
-            background: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            transition: transform 0.2s;
+            aspect-ratio: 3/4;
+            min-height: 200px;
         }
-        .photo-card:active { transform: scale(0.98); }
 
-        .photo-card img {
+        .image-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .image-item img {
             width: 100%;
-            height: auto;
+            height: 100%;
+            object-fit: cover;
             display: block;
-            background-color: #f0f0f0; /* 加载前的骨架屏颜色 */
-            filter: blur(10px); /* 初始模糊 */
-            transition: filter 0.5s ease;
+            transition: transform 0.5s ease;
         }
-        .photo-card img.loaded { filter: blur(0); } /* 加载完成去模糊 */
 
-        /* --- 灯箱 (全屏查看) --- */
-        .lightbox {
+        .image-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* 加载指示器 */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 图片查看器模态框 */
+        .modal {
             display: none;
             position: fixed;
-            z-index: 9999;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.95);
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.9);
         }
-        .lightbox img {
-            max-width: 95%;
-            max-height: 80vh;
-            border-radius: 4px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            pointer-events: auto; /* 允许长按 */
+
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
         }
-        .lightbox-caption {
-            margin-top: 15px;
-            color: #fff;
-            font-size: 0.9rem;
-            background: rgba(0,0,0,0.6);
-            padding: 8px 16px;
-            border-radius: 20px;
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .modal-body {
+            position: relative;
             text-align: center;
-            pointer-events: none; /* 让点击穿透 */
+        }
+
+        #modal-image {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .modal-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .modal-controls button {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-controls button:hover {
+            background-color: #357abd;
+        }
+
+        .image-counter {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        /* 下载按钮特殊样式 */
+        .download-btn {
+            background-color: #50c878 !important;
+        }
+
+        .download-btn:hover {
+            background-color: #3d9e5f !important;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .masonry-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+            
+            #modal-image {
+                max-height: 60vh;
+            }
+            
+            .modal-controls {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .modal-controls button {
+                flex: 1;
+                min-width: 100px;
+            }
+            
+            .image-counter {
+                width: 100%;
+                text-align: center;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .masonry-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-
-    <!-- 头部信息 -->
     <header>
-        <h1>🏔️ 云南之旅 · 2026</h1>
-        <p>精选照片 & 游玩记录</p>
+        <h1>北京旅游 2026</h1>
     </header>
 
-    <div class="container">
-        <!-- 第一部分：精选照片 -->
-        <h2 class="section-title">✨ 精选瞬间</h2>
-        <div class="gallery" id="gallery-featured"></div>
+    <main>
+        <div class="masonry-container" id="masonry-container">
+            <!-- 图片将通过JavaScript动态加载 -->
+        </div>
+        <div class="loading" id="loading">
+            加载中
+        </div>
+    </main>
 
-        <!-- 第二部分：过程照片 -->
-        <h2 class="section-title">📸 游玩过程</h2>
-        <div class="gallery" id="gallery-process"></div>
+    <!-- 图片查看器模态框 -->
+    <div class="modal" id="image-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <img id="modal-image" src="" alt="">
+                <div class="modal-controls">
+                    <button class="prev-btn">上一张</button>
+                    <span class="image-counter" id="image-counter">1/10</span>
+                    <button class="next-btn">下一张</button>
+                    <button class="download-btn">下载</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 灯箱结构 -->
-    <div class="lightbox" id="lightbox">
-        <img id="lightbox-img" src="" alt="大图">
-        <div class="lightbox-caption">👆 长按图片保存到相册</div>
-    </div>
+    <footer>
+        <p>© 2026 北京旅游相册</p>
+    </footer>
 
     <script>
-        // ==========================================
-        // 1. 配置区域：在这里粘贴你的图片链接
-        // ==========================================
-        
-        // 精选照片列表 (放你觉得最好看的几张)
-        const featuredImages = [
+        // 图片数据 - 阿里云OSS存储
+        const imageList = [
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/2026_04_03_14_44_20_IMG_1509.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/2026_04_03_15_56_29_IMG_1516.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/2026_04_03_15_56_58_IMG_1519.JPG',
@@ -264,10 +404,8 @@
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_0982.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1004.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1012.JPG',
-            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1021.JPG'
-        ];
-        // 过程照片列表 (放剩下的几百张)
-        const processImages = [
+            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1021.JPG',
+
            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_14_44_21_IMG_1510.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_14_44_24_IMG_1511.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_14_44_30_IMG_1512.JPG',
@@ -318,7 +456,6 @@
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_17_24_28_IMG_1569.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_17_25_12_IMG_1571.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_17_25_20_IMG_1573.JPG',
-            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_18_58_23_IMG_1574.PNG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_04_10_01_27_IMG_1575.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_04_10_01_30_IMG_1576.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_04_10_01_33_IMG_1578.JPG',
@@ -1210,78 +1347,157 @@
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/DSC_1017.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/DSC_1018.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/DSC_1019.JPG',
-            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/DSC_1020.JPG'
-        ];
+            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/DSC_1020.JPG'];
 
-        // ==========================================
-        // 2. 核心逻辑
-        // ==========================================
-        
-        const featuredContainer = document.getElementById('gallery-featured');
-        const processContainer = document.getElementById('gallery-process');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
+        // 全局变量
+        let currentImageIndex = 0;
+        let loadedImages = 0;
+        const imagesPerLoad = 6;
+        let isLoading = false;
+        let scrollTimeout;
 
-        // 生成图片卡片的函数
-        function createImageCard(src, index) {
-            const card = document.createElement('div');
-            card.className = 'photo-card';
+        // DOM 元素
+        const masonryContainer = document.getElementById('masonry-container');
+        const loading = document.getElementById('loading');
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const imageCounter = document.getElementById('image-counter');
+        const closeBtn = document.querySelector('.close');
+        const prevBtn = document.querySelector('.prev-btn');
+        const nextBtn = document.querySelector('.next-btn');
+        const downloadBtn = document.querySelector('.download-btn');
 
-            const img = document.createElement('img');
-            
-            // 懒加载与渐进式加载逻辑
-            // 1. 如果是阿里云OSS链接，先加载缩略图 (w_200)
-            let thumbSrc = src;
-            if (src.includes('aliyuncs.com')) {
-                thumbSrc = src + '?x-oss-process=image/resize,w_200/quality,Q_80';
-            }
-            
-            img.src = thumbSrc; // 初始显示缩略图
-            img.dataset.src = src; // 真实地址存起来
-            img.loading = 'lazy'; // 浏览器原生懒加载
-
-            // 图片加载完成后，替换为高清图并去模糊
-            img.onload = function() {
-                const highRes = new Image();
-                highRes.src = src;
-                highRes.onload = () => {
-                    img.src = src;
-                    img.classList.add('loaded');
-                }
-            };
-
-            // 点击打开灯箱
-            card.onclick = () => openLightbox(src);
-            
-            card.appendChild(img);
-            return card;
+        // 初始化函数
+        function init() {
+            loadImages();
+            setupEventListeners();
         }
 
-        // 渲染函数
-        function renderGallery(container, images) {
-            images.forEach((src, index) => {
-                container.appendChild(createImageCard(src, index));
+        // 加载图片
+        function loadImages() {
+            if (isLoading || loadedImages >= imageList.length) {
+                if (loadedImages >= imageList.length) {
+                    loading.style.display = 'none';
+                }
+                return;
+            }
+
+            isLoading = true;
+            const endIndex = Math.min(loadedImages + imagesPerLoad, imageList.length);
+            for (let i = loadedImages; i < endIndex; i++) {
+                const imageUrl = imageList[i];
+                createImageItem(imageUrl, i);
+            }
+            loadedImages = endIndex;
+            
+            // 模拟加载延迟，实际项目中可以根据实际情况调整
+            setTimeout(() => {
+                isLoading = false;
+            }, 500);
+        }
+
+        // 创建图片项
+        function createImageItem(imageUrl, index) {
+            const imageItem = document.createElement('div');
+            imageItem.className = 'image-item';
+            
+            const img = document.createElement('img');
+            img.src = imageUrl + '?x-oss-process=image/resize,w_200';
+            img.alt = `北京旅游 ${index + 1}`;
+            img.loading = 'lazy';
+            
+            imageItem.appendChild(img);
+            imageItem.addEventListener('click', () => openModal(index));
+            masonryContainer.appendChild(imageItem);
+        }
+
+        // 打开模态框
+        function openModal(index) {
+            currentImageIndex = index;
+            updateModalImage();
+            modal.style.display = 'block';
+        }
+
+        // 更新模态框图片
+        function updateModalImage() {
+            const currentImage = imageList[currentImageIndex];
+            modalImage.src = currentImage;
+            modalImage.alt = `北京旅游 ${currentImageIndex + 1}`;
+            imageCounter.textContent = `${currentImageIndex + 1}/${imageList.length}`;
+        }
+
+        // 上一张
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + imageList.length) % imageList.length;
+            updateModalImage();
+        }
+
+        // 下一张
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % imageList.length;
+            updateModalImage();
+        }
+
+        // 下载图片
+        function downloadImage() {
+            const currentImage = imageList[currentImageIndex];
+            const link = document.createElement('a');
+            link.href = currentImage;
+            link.download = `北京旅游_${currentImageIndex + 1}.jpg`;
+            link.click();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 关闭模态框
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // 点击模态框外部关闭
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // 上一张按钮
+            prevBtn.addEventListener('click', prevImage);
+
+            // 下一张按钮
+            nextBtn.addEventListener('click', nextImage);
+
+            // 下载按钮
+            downloadBtn.addEventListener('click', downloadImage);
+
+            // 键盘导航
+            window.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'block') {
+                    if (e.key === 'ArrowLeft') {
+                        prevImage();
+                    } else if (e.key === 'ArrowRight') {
+                        nextImage();
+                    } else if (e.key === 'Escape') {
+                        modal.style.display = 'none';
+                    }
+                }
+            });
+
+            // 滚动加载
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+                        loadImages();
+                    }
+                }, 200);
             });
         }
 
-        // 打开灯箱
-        function openLightbox(src) {
-            lightboxImg.src = src;
-            lightbox.style.display = 'flex';
-        }
-
-        // 关闭灯箱 (点击背景)
-        lightbox.onclick = (e) => {
-            if (e.target === lightbox) {
-                lightbox.style.display = 'none';
-                lightboxImg.src = '';
-            }
-        }
-
         // 初始化页面
-        renderGallery(featuredContainer, featuredImages);
-        renderGallery(processContainer, processImages);
-
+        window.addEventListener('DOMContentLoaded', init);
     </script>
+</body>
+</html></script>
 </body>
 </html>
