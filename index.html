@@ -3,172 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的旅行相册</title>
+    <title>云南之旅 · 2026</title>
     <style>
-        /* 基础样式重置 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f9f9f9; color: #333; padding-bottom: 50px; }
-        
-        /* 头部样式 */
-        header { text-align: center; padding: 40px 20px; background: #fff; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        header h1 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 10px; }
-        header p { color: #7f8c8d; font-size: 0.9rem; }
+        /* --- 基础样式 --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f9f9f9; color: #333; line-height: 1.6; padding-bottom: 50px; }
 
-        /* 相册网格布局 */
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
-        .section-title { margin: 30px 0 15px; font-size: 1.2rem; border-left: 4px solid #3498db; padding-left: 10px; }
-        
-        .gallery { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
-            gap: 10px; 
+        /* --- 头部 --- */
+        header { 
+            background-color: #fff; 
+            padding: 30px 20px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            margin-bottom: 20px; 
         }
-        
-        .gallery img { 
-            width: 100%; 
-            height: 150px; 
-            object-fit: cover; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-        }
-        .gallery img:hover { transform: scale(1.02); }
+        header h1 { font-size: 1.8rem; color: #2c3e50; margin-bottom: 5px; }
+        header p { color: #7f8c8d; font-size: 0.95rem; }
 
-        /* 灯箱（全屏查看）样式 */
+        /* --- 容器 --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        /* --- 栏目样式 --- */
+        .section-title {
+            text-align: center;
+            font-size: 1.4rem;
+            color: #34495e;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 2px;
+            background-color: #3498db;
+        }
+
+        /* --- 瀑布流布局 --- */
+        .gallery {
+            column-count: 2;
+            column-gap: 10px;
+        }
+        @media (min-width: 768px) { .gallery { column-count: 3; } }
+        @media (min-width: 1024px) { .gallery { column-count: 4; } }
+
+        .photo-card {
+            break-inside: avoid;
+            margin-bottom: 10px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .photo-card:active { transform: scale(0.98); }
+
+        .photo-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background-color: #f0f0f0; /* 加载前的骨架屏颜色 */
+            filter: blur(10px); /* 初始模糊 */
+            transition: filter 0.5s ease;
+        }
+        .photo-card img.loaded { filter: blur(0); } /* 加载完成去模糊 */
+
+        /* --- 灯箱 (全屏查看) --- */
         .lightbox {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95);
             justify-content: center;
             align-items: center;
             flex-direction: column;
         }
-
         .lightbox img {
-            max-width: 90%;
+            max-width: 95%;
             max-height: 80vh;
             border-radius: 4px;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            pointer-events: auto; /* 允许长按 */
         }
-
-        /* 控制按钮 */
-        .controls {
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            transform: translateY(-50%);
-            pointer-events: none; /* 让点击穿透空白处 */
-        }
-
-        .btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            border-radius: 50%;
-            pointer-events: auto;
-            user-select: none;
-        }
-        .btn:hover { background: rgba(255,255,255,0.4); }
-
-        /* 底部信息栏 */
-        .info-bar {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .action-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            text-decoration: none;
+        .lightbox-caption {
+            margin-top: 15px;
+            color: #fff;
             font-size: 0.9rem;
-        }
-        .action-btn:active { background: #2980b9; }
-
-        /* 关闭按钮 */
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        /* 手机端适配 */
-        @media (max-width: 600px) {
-            .gallery { grid-template-columns: repeat(3, 1fr); gap: 5px; }
-            .gallery img { height: 100px; }
-            .btn { padding: 10px 15px; font-size: 1.5rem; }
-            .info-bar { flex-direction: column; gap: 10px; }
+            background: rgba(0,0,0,0.6);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-align: center;
+            pointer-events: none; /* 让点击穿透 */
         }
     </style>
 </head>
 <body>
 
+    <!-- 头部信息 -->
     <header>
-        <h1>🏔️ 北京之旅 · 2026</h1>
+        <h1>🏔️ 云南之旅 · 2026</h1>
         <p>精选照片 & 游玩记录</p>
     </header>
 
     <div class="container">
         <!-- 第一部分：精选照片 -->
         <h2 class="section-title">✨ 精选瞬间</h2>
-        <div class="gallery" id="gallery-featured">
-            <!-- 这里的图片由JS生成 -->
-        </div>
+        <div class="gallery" id="gallery-featured"></div>
 
         <!-- 第二部分：过程照片 -->
         <h2 class="section-title">📸 游玩过程</h2>
-        <div class="gallery" id="gallery-process">
-            <!-- 这里的图片由JS生成 -->
-        </div>
+        <div class="gallery" id="gallery-process"></div>
     </div>
 
-    <!-- 全屏查看弹窗 -->
-    <div id="lightbox" class="lightbox">
-        <span class="close" onclick="closeLightbox()">&times;</span>
-        
-        <img id="lightbox-img" src="" alt="全屏预览">
-        
-        <div class="controls">
-            <button class="btn" onclick="changeImage(-1)">&#10094;</button>
-            <button class="btn" onclick="changeImage(1)">&#10095;</button>
-        </div>
-
-        <div class="info-bar">
-            <span id="image-counter">1 / 10</span>
-            <a id="download-btn" href="#" target="_blank" class="action-btn">⬇️ 下载原图</a>
-        </div>
+    <!-- 灯箱结构 -->
+    <div class="lightbox" id="lightbox">
+        <img id="lightbox-img" src="" alt="大图">
+        <div class="lightbox-caption">👆 长按图片保存到相册</div>
     </div>
 
     <script>
         // ==========================================
-        // ⚙️ 配置区域：在这里填入你的阿里云 OSS 图片链接
+        // 1. 配置区域：在这里粘贴你的图片链接
         // ==========================================
         
-        // 1. 精选照片链接列表
+        // 精选照片列表 (放你觉得最好看的几张)
         const featuredImages = [
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/2026_04_03_14_44_20_IMG_1509.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/2026_04_03_15_56_29_IMG_1516.JPG',
@@ -296,8 +266,9 @@
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1012.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/creme/DSC_1021.JPG'
         ];
+        ];
 
-        // 2. 过程照片链接列表
+        // 过程照片列表 (放剩下的几百张)
         const processImages = [
            'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_14_44_21_IMG_1510.JPG',
             'https://hlxh.oss-cn-beijing.aliyuncs.com/BMbeijing/1All/2026_04_03_14_44_24_IMG_1511.JPG',
@@ -1245,74 +1216,74 @@
         ];
 
         // ==========================================
-        // ⚙️ 逻辑区域 (不需要修改)
+        // 2. 核心逻辑
         // ==========================================
         
-        // 合并所有图片用于轮播
-        const allImages = [...featuredImages, ...processImages];
-        let currentIndex = 0;
+        const featuredContainer = document.getElementById('gallery-featured');
+        const processContainer = document.getElementById('gallery-process');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
 
-        // 初始化页面
-        function init() {
-            renderGallery('gallery-featured', featuredImages);
-            renderGallery('gallery-process', processImages);
+        // 生成图片卡片的函数
+        function createImageCard(src, index) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+
+            const img = document.createElement('img');
+            
+            // 懒加载与渐进式加载逻辑
+            // 1. 如果是阿里云OSS链接，先加载缩略图 (w_200)
+            let thumbSrc = src;
+            if (src.includes('aliyuncs.com')) {
+                thumbSrc = src + '?x-oss-process=image/resize,w_200/quality,Q_80';
+            }
+            
+            img.src = thumbSrc; // 初始显示缩略图
+            img.dataset.src = src; // 真实地址存起来
+            img.loading = 'lazy'; // 浏览器原生懒加载
+
+            // 图片加载完成后，替换为高清图并去模糊
+            img.onload = function() {
+                const highRes = new Image();
+                highRes.src = src;
+                highRes.onload = () => {
+                    img.src = src;
+                    img.classList.add('loaded');
+                }
+            };
+
+            // 点击打开灯箱
+            card.onclick = () => openLightbox(src);
+            
+            card.appendChild(img);
+            return card;
         }
 
-        // 渲染网格
-        function renderGallery(elementId, images) {
-            const container = document.getElementById(elementId);
+        // 渲染函数
+        function renderGallery(container, images) {
             images.forEach((src, index) => {
-                const img = document.createElement('img');
-                img.src = src;
-                img.onclick = () => openLightbox(images.indexOf(src) + (elementId === 'gallery-process' ? featuredImages.length : 0));
-                container.appendChild(img);
+                container.appendChild(createImageCard(src, index));
             });
         }
 
         // 打开灯箱
-        function openLightbox(index) {
-            currentIndex = index;
-            updateLightbox();
-            document.getElementById('lightbox').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
         }
 
-        // 关闭灯箱
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-            document.body.style.overflow = 'auto'; // 恢复滚动
-        }
-
-        // 更新图片信息
-        function updateLightbox() {
-            const imgElement = document.getElementById('lightbox-img');
-            const counterElement = document.getElementById('image-counter');
-            const downloadBtn = document.getElementById('download-btn');
-
-            imgElement.src = allImages[currentIndex];
-            downloadBtn.href = allImages[currentIndex]; // 设置下载链接
-            counterElement.innerText = `${currentIndex + 1} / ${allImages.length}`;
-        }
-
-        // 切换图片
-        function changeImage(direction) {
-            currentIndex += direction;
-            if (currentIndex < 0) currentIndex = allImages.length - 1; // 循环到最后一张
-            if (currentIndex >= allImages.length) currentIndex = 0;     // 循环到第一张
-            updateLightbox();
-        }
-
-        // 键盘左右键控制
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('lightbox').style.display === 'flex') {
-                if (e.key === 'ArrowLeft') changeImage(-1);
-                if (e.key === 'ArrowRight') changeImage(1);
-                if (e.key === 'Escape') closeLightbox();
+        // 关闭灯箱 (点击背景)
+        lightbox.onclick = (e) => {
+            if (e.target === lightbox) {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
             }
-        });
+        }
 
-        // 启动
-        init();
+        // 初始化页面
+        renderGallery(featuredContainer, featuredImages);
+        renderGallery(processContainer, processImages);
+
     </script>
 </body>
 </html>
