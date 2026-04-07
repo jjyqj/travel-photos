@@ -127,7 +127,9 @@
 
         .close {
             color: #aaa;
-            float: right;
+            position: absolute;
+            top: 10px;
+            right: 15px;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
@@ -135,11 +137,13 @@
             padding: 5px 10px;
             border-radius: 4px;
             transition: all 0.3s ease;
+            z-index: 1001;
+            background-color: rgba(255,255,255,0.9);
         }
 
         .close:hover {
             color: black;
-            background-color: rgba(0,0,0,0.1);
+            background-color: rgba(255,255,255,1);
         }
 
         .modal-body {
@@ -272,7 +276,6 @@
                     <button class="prev-btn">上一张</button>
                     <span class="image-counter" id="image-counter">1/10</span>
                     <button class="next-btn">下一张</button>
-                    <button class="download-btn">下载</button>
                 </div>
             </div>
         </div>
@@ -1362,7 +1365,7 @@
         let scrollTimeout;
 
         // DOM 元素
-        let masonryContainer, loading, modal, modalImage, imageCounter, closeBtn, prevBtn, nextBtn, downloadBtn;
+        let masonryContainer, loading, modal, modalImage, imageCounter, closeBtn, prevBtn, nextBtn;
 
         // 初始化函数
         function init() {
@@ -1375,7 +1378,6 @@
             closeBtn = document.querySelector('.close');
             prevBtn = document.querySelector('.prev-btn');
             nextBtn = document.querySelector('.next-btn');
-            downloadBtn = document.querySelector('.download-btn');
             
             loadImages();
             setupEventListeners();
@@ -1446,27 +1448,6 @@
             updateModalImage();
         }
 
-        // 下载图片
-        function downloadImage() {
-            const currentImage = imageList[currentImageIndex];
-            
-            // 检测是否在微信浏览器中
-            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-            
-            if (isWeChat) {
-                // 在微信中，提示用户长按图片保存
-                alert('请长按图片保存到相册');
-                // 聚焦到图片，方便用户长按
-                modalImage.focus();
-            } else {
-                // 在其他浏览器中，使用正常下载方式
-                const link = document.createElement('a');
-                link.href = currentImage;
-                link.download = `北京旅游_${currentImageIndex + 1}.jpg`;
-                link.click();
-            }
-        }
-
         // 设置事件监听器
         function setupEventListeners() {
             // 关闭模态框
@@ -1488,9 +1469,6 @@
 
             // 下一张按钮
             nextBtn.addEventListener('click', nextImage);
-
-            // 下载按钮
-            downloadBtn.addEventListener('click', downloadImage);
 
             // 键盘导航
             window.addEventListener('keydown', (e) => {
