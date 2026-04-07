@@ -131,10 +131,15 @@
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            line-height: 1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
         .close:hover {
             color: black;
+            background-color: rgba(0,0,0,0.1);
         }
 
         .modal-body {
@@ -1357,18 +1362,21 @@
         let scrollTimeout;
 
         // DOM 元素
-        const masonryContainer = document.getElementById('masonry-container');
-        const loading = document.getElementById('loading');
-        const modal = document.getElementById('image-modal');
-        const modalImage = document.getElementById('modal-image');
-        const imageCounter = document.getElementById('image-counter');
-        const closeBtn = document.querySelector('.close');
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        const downloadBtn = document.querySelector('.download-btn');
+        let masonryContainer, loading, modal, modalImage, imageCounter, closeBtn, prevBtn, nextBtn, downloadBtn;
 
         // 初始化函数
         function init() {
+            // 获取DOM元素
+            masonryContainer = document.getElementById('masonry-container');
+            loading = document.getElementById('loading');
+            modal = document.getElementById('image-modal');
+            modalImage = document.getElementById('modal-image');
+            imageCounter = document.getElementById('image-counter');
+            closeBtn = document.querySelector('.close');
+            prevBtn = document.querySelector('.prev-btn');
+            nextBtn = document.querySelector('.next-btn');
+            downloadBtn = document.querySelector('.download-btn');
+            
             loadImages();
             setupEventListeners();
         }
@@ -1441,16 +1449,30 @@
         // 下载图片
         function downloadImage() {
             const currentImage = imageList[currentImageIndex];
-            const link = document.createElement('a');
-            link.href = currentImage;
-            link.download = `北京旅游_${currentImageIndex + 1}.jpg`;
-            link.click();
+            
+            // 检测是否在微信浏览器中
+            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+            
+            if (isWeChat) {
+                // 在微信中，提示用户长按图片保存
+                alert('请长按图片保存到相册');
+                // 聚焦到图片，方便用户长按
+                modalImage.focus();
+            } else {
+                // 在其他浏览器中，使用正常下载方式
+                const link = document.createElement('a');
+                link.href = currentImage;
+                link.download = `北京旅游_${currentImageIndex + 1}.jpg`;
+                link.click();
+            }
         }
 
         // 设置事件监听器
         function setupEventListeners() {
             // 关闭模态框
-            closeBtn.addEventListener('click', () => {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 modal.style.display = 'none';
             });
 
@@ -1497,7 +1519,5 @@
         // 初始化页面
         window.addEventListener('DOMContentLoaded', init);
     </script>
-</body>
-</html></script>
 </body>
 </html>
